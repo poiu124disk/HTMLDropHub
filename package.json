@@ -1,0 +1,28 @@
+{
+  "name": "htmldrophub",
+  "version": "1.0.0",
+  "description": "Lightweight Micro-App Hosting Platform & Cloud MCP Publishing Engine",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "micro-app",
+    "mcp",
+    "model-context-protocol",
+    "html",
+    "cloudflare-tunnel"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "zod": "^3.24.2"
+  }
+}

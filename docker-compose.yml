@@ -1,0 +1,37 @@
+services:
+  # HTMLDropHub Core Engine
+  htmldrophub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: htmldrophub
+    restart: unless-stopped
+    ports:
+      # Expose port 3000 locally or behind a reverse proxy.
+      # If exclusively using Cloudflare Tunnel, you can comment this port out.
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-http://localhost:3000}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-15}
+      - ALLOW_PUBLIC_CATALOG=${ALLOW_PUBLIC_CATALOG:-true}
+    volumes:
+      # Persistent storage: all HTML micro-apps and API keys live here
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # (Optional) Cloudflare Tunnel Service
+  # Enables public internet access without opening any inbound firewall ports.
+  # To enable: provide TUNNEL_TOKEN in your .env and uncomment this service.
+  # tunnel:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: htmldrophub_tunnel
+  #   restart: unless-stopped
+  #   command: tunnel run --token ${TUNNEL_TOKEN}
+  #   depends_on:
+  #     - htmldrophub

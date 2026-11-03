@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - HTMLDropHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    [x-cloak] { display: none !important; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navbar -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-md shadow-indigo-500/10">
+          <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight text-white flex items-center gap-2">
+            HTMLDropHub <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">ADMIN</span>
+          </span>
+          <span class="text-xs text-slate-400 block -mt-0.5">Micro-App Engine & Remote MCP</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="/" target="_blank" class="text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+          <span class="hidden sm:inline">Public Catalog</span>
+        </a>
+        <button id="logoutBtn" class="text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Tab Navigation -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <nav class="flex space-x-2" aria-label="Tabs">
+        <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Overview</span>
+        </button>
+        <button onclick="switchTab('keys')" id="tab-keys" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-850">
+          <i class="fa-solid fa-key"></i>
+          <span>API Keys & Chroot</span>
+        </button>
+        <button onclick="switchTab('apps')" id="tab-apps" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-850">
+          <i class="fa-solid fa-cubes"></i>
+          <span>Micro-Apps</span>
+        </button>
+        <button onclick="switchTab('guide')" id="tab-guide" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-850">
+          <i class="fa-solid fa-book-open"></i>
+          <span>AI / MCP Guide</span>
+        </button>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <button onclick="loadAllData()" class="p-2 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-lg hover:bg-slate-800 transition" title="Refresh Data">
+          <i class="fa-solid fa-rotate text-sm" id="refreshIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="content-overview" class="tab-content space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+            <span>Total Apps</span>
+            <i class="fa-solid fa-cubes text-indigo-400"></i>
+          </div>
+          <div class="text-3xl font-bold text-white" id="statTotalApps">-</div>
+          <div class="text-xs text-slate-500 mt-1" id="statScopesCount">- scopes active</div>
+        </div>
+        <!-- Card 2 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+            <span>API Keys</span>
+            <i class="fa-solid fa-key text-emerald-400"></i>
+          </div>
+          <div class="text-3xl font-bold text-white" id="statTotalKeys">-</div>
+          <div class="text-xs text-emerald-400 mt-1" id="statActiveKeys">- active</div>
+        </div>
+        <!-- Card 3 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+            <span>Storage Used</span>
+            <i class="fa-solid fa-hard-drive text-amber-400"></i>
+          </div>
+          <div class="text-3xl font-bold text-white" id="statStorage">-</div>
+          <div class="text-xs text-slate-500 mt-1">Lightweight HTML files</div>
+        </div>
+        <!-- Card 4 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+            <span>Server Uptime</span>
+            <i class="fa-solid fa-server text-sky-400"></i>
+          </div>
+          <div class="text-2xl font-bold text-white truncate" id="statUptime">-</div>
+          <div class="text-xs text-slate-500 mt-1" id="statNodeVersion">-</div>
+        </div>
+      </div>
+
+      <!-- Quick Action / Banner -->
+      <div class="bg-gradient-to-r from-indigo-900/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+            Deploy HTML Micro-Apps from AI in Seconds
+          </h3>
+          <p class="text-sm text-slate-400 mt-1 max-w-2xl">
+            Create an API Key scoped to a folder, copy the SSE Remote MCP config to Cursor or Claude Desktop, and tell the AI to publish tools directly.
+          </p>
+        </div>
+        <button onclick="openCreateKeyModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2 shrink-0">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Create New API Key</span>
+        </button>
+      </div>
+
+      <!-- Recent Apps Preview -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-base font-semibold text-white">Recently Deployed Apps</h3>
+        <div id="recentAppsList" class="space-y-3">
+          <div class="text-sm text-slate-500 py-4 text-center">Loading applications...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: API KEYS -->
+    <section id="content-keys" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">API Keys & Directory Chroot</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Manage AI client tokens and jail folders. Each token is restricted strictly to its bound directory.</p>
+        </div>
+        <button onclick="openCreateKeyModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-xl transition shadow-md shadow-indigo-600/20 flex items-center gap-2 self-start sm:self-auto text-sm">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add API Key</span>
+        </button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                <th class="py-3 px-4">Name / Label</th>
+                <th class="py-3 px-4">Chroot Scope</th>
+                <th class="py-3 px-4">Token Preview</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Stats</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="keysTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+              <tr>
+                <td colspan="6" class="py-8 text-center text-slate-500">Loading keys...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MICRO-APPS -->
+    <section id="content-apps" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Hosted Micro-Apps</h2>
+          <p class="text-xs text-slate-400 mt-0.5">All single-file web tools currently hosted on this HTMLDropHub engine.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative w-full sm:w-64">
+            <input 
+              type="text" 
+              id="appSearchInput" 
+              oninput="filterApps()" 
+              placeholder="Search apps or scopes..." 
+              class="w-full bg-slate-950 border border-slate-700 text-xs rounded-xl pl-9 pr-4 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <div id="appsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 4: GUIDE -->
+    <section id="content-guide" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-network-wired text-indigo-400"></i>
+            Remote MCP & AI Client Integration Guide
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Connect your AI coding assistants directly to this cloud repository via Server-Sent Events (SSE).</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Guide 1: Cursor -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
+              <i class="fa-solid fa-terminal"></i>
+              <span>Cursor IDE Setup</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Open <strong>Cursor Settings &rarr; Features &rarr; MCP</strong>, click <strong>"Add New MCP Server"</strong>:
+            </p>
+            <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+              <li><strong>Type:</strong> <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">SSE</code></li>
+              <li><strong>Name:</strong> <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">HTMLDropHub</code></li>
+              <li><strong>Server URL:</strong> <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300" id="guideCursorUrl">https://&lt;your-domain&gt;/sse?token=&lt;YOUR_TOKEN&gt;</code></li>
+            </ul>
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 font-mono overflow-x-auto">
+              <p class="text-slate-500 mb-1">// In Cursor Chat, simply instruct:</p>
+              "Build a single-file tax calculator and deploy it via drop_html tool."
+            </div>
+          </div>
+
+          <!-- Guide 2: Claude Desktop -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+              <i class="fa-solid fa-robot"></i>
+              <span>Claude Desktop Config</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Add this entry inside your <code class="bg-slate-900 px-1 rounded text-emerald-300">claude_desktop_config.json</code>:
+            </p>
+            <pre class="bg-slate-900 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 font-mono overflow-x-auto">
+{
+  "mcpServers": {
+    "htmldrophub": {
+      "url": "<span class="text-emerald-400" id="guideClaudeUrl">https://&lt;your-domain&gt;/sse?token=&lt;TOKEN&gt;</span>"
+    }
+  }
+}</pre>
+          </div>
+
+          <!-- Guide 3: cURL Direct Push -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-amber-400 font-semibold text-sm">
+              <i class="fa-solid fa-code"></i>
+              <span>cURL Direct API Push</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Send raw HTML or JSON payload directly from any terminal or CI/CD script:
+            </p>
+            <pre class="bg-slate-900 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 font-mono overflow-x-auto">
+curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
+  -H "Authorization: Bearer &lt;YOUR_TOKEN&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filename": "demo.html",
+    "title": "Quick Demo",
+    "content": "&lt;h1&gt;Hello World&lt;/h1&gt;"
+  }'</pre>
+          </div>
+
+          <!-- Guide 4: Cloudflare Tunnel & Zero Trust -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-sky-400 font-semibold text-sm">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Cloudflare Tunnel & Zero Trust</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Run safely behind Cloudflare without opening any firewall ports:
+            </p>
+            <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+              <li>In Cloudflare Zero Trust, configure an <strong>Access Application</strong> for your domain.</li>
+              <li>Add a <strong>Bypass Rule</strong> for path <code class="bg-slate-900 px-1 text-sky-300">/sse*</code> and <code class="bg-slate-900 px-1 text-sky-300">/messages*</code> or verify headers.</li>
+              <li>When accessing <code class="bg-slate-900 px-1 text-sky-300">/admin</code>, Cloudflare automatically passes <code class="bg-slate-900 px-1 text-sky-300">Cf-Access-Authenticated-User-Email</code> header to log you in automatically!</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL 1: Create API Key -->
+  <div id="createKeyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-key text-indigo-400"></i>
+          <span>Create New API Key</span>
+        </h3>
+        <button onclick="closeCreateKeyModal()" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="createKeyForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Key Name / Developer Label *</label>
+          <input type="text" id="keyName" required placeholder="e.g. Cursor_Alice or Bob_Dev" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">
+            Scoped Jail Directory (Chroot Folder) *
+          </label>
+          <input type="text" id="keyScope" required placeholder="e.g. alice or finance" pattern="^[a-zA-Z0-9_-]+$" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <p class="text-[11px] text-slate-500 mt-1">This token will be strictly locked inside <code class="text-indigo-300">/apps/&lt;scope&gt;</code>. Path traversals are prevented.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Custom Secret Token (Optional)</label>
+          <input type="text" id="keyToken" placeholder="Leave blank to auto-generate (hdh_sec_...)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Max File Size (MB)</label>
+            <input type="number" id="keyMaxSize" value="15" min="1" max="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+          <div class="flex items-center pt-5">
+            <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+              <input type="checkbox" id="keyAllowOverwrite" checked class="w-4 h-4 rounded text-indigo-600 bg-slate-950 border-slate-700 focus:ring-indigo-500">
+              <span>Allow Overwrite</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="createKeyError" class="hidden text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20"></div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeCreateKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" id="createKeySubmitBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 text-xs rounded-xl transition shadow-md shadow-indigo-600/30">
+            Generate Key
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: View Configs / Copy -->
+  <div id="viewConfigModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-code text-indigo-400"></i>
+            <span id="configModalKeyName">API Key Config</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="configModalScope">Scope: -</p>
+        </div>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Config Tabs -->
+      <div class="flex space-x-2 border-b border-slate-800 pb-2">
+        <button onclick="showConfigTab('cursor')" id="cfgTab-cursor" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white">Cursor IDE</button>
+        <button onclick="showConfigTab('claude')" id="cfgTab-claude" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Claude Desktop</button>
+        <button onclick="showConfigTab('curl')" id="cfgTab-curl" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">cURL Command</button>
+        <button onclick="showConfigTab('token')" id="cfgTab-token" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Raw Token</button>
+      </div>
+
+      <div class="relative">
+        <pre id="configContentArea" class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-200 border border-slate-800 custom-scrollbar overflow-x-auto max-h-64 whitespace-pre"></pre>
+        <button onclick="copyCurrentConfig()" class="absolute top-2 right-2 bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs px-2.5 py-1.5 rounded-lg border border-indigo-400/30 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-copy"></i>
+          <span id="copyBtnText">Copy</span>
+        </button>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-800">
+        <button onclick="closeConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: App Sandbox Preview -->
+  <div id="previewModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2 truncate">
+          <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <span class="text-xs font-semibold text-slate-300 ml-2 truncate" id="previewTitle">Preview</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <a id="previewOpenTab" href="#" target="_blank" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+            <span>Open in New Tab</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+          <button onclick="closePreviewModal()" class="text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 bg-white relative">
+        <iframe id="previewIframe" src="" class="w-full h-full border-none" sandbox="allow-scripts allow-forms allow-modals allow-downloads"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-indigo-600 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 transform transition-all duration-300 translate-y-24 opacity-0 z-50">
+    <i class="fa-solid fa-check"></i>
+    <span id="toastMsg">Action succeeded</span>
+  </div>
+
+  <script>
+    let currentKeys = [];
+    let currentApps = [];
+    let activeKeyForConfig = null;
+    let activeConfigTab = 'cursor';
+
+    // Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+        btn.classList.add('text-slate-400', 'hover:text-slate-200');
+      });
+
+      const activeContent = document.getElementById(`content-${tabId}`);
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      if (activeContent) activeContent.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200');
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3000);
+    }
+
+    async function loadAllData() {
+      const icon = document.getElementById('refreshIcon');
+      if (icon) icon.classList.add('fa-spin');
+      try {
+        await Promise.all([loadOverview(), loadKeys(), loadApps()]);
+      } finally {
+        if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 400);
+      }
+    }
+
+    async function loadOverview() {
+      const res = await fetch('/api/admin/overview');
+      if (res.status === 401) { window.location.href = '/admin/login'; return; }
+      const data = await res.json();
+      if (!data.success) return;
+
+      const s = data.stats;
+      document.getElementById('statTotalApps').textContent = s.totalApps;
+      document.getElementById('statScopesCount').textContent = `${s.totalScopes} scope folders`;
+      document.getElementById('statTotalKeys').textContent = s.totalKeys;
+      document.getElementById('statActiveKeys').textContent = `${s.activeKeys} active`;
+      document.getElementById('statStorage').textContent = s.storageFormatted;
+
+      const mins = Math.floor(s.uptimeSeconds / 60);
+      const hours = Math.floor(mins / 60);
+      document.getElementById('statUptime').textContent = hours > 0 ? `${hours}h ${mins % 60}m` : `${mins}m`;
+      document.getElementById('statNodeVersion').textContent = `Node ${s.nodeVersion} (${s.platform})`;
+
+      document.getElementById('guideCursorUrl').textContent = `${s.publicBaseUrl}/sse?token=<YOUR_TOKEN>`;
+      document.getElementById('guideClaudeUrl').textContent = `${s.publicBaseUrl}/sse?token=<YOUR_TOKEN>`;
+      document.getElementById('guideCurlUrl').textContent = s.publicBaseUrl;
+    }
+
+    async function loadKeys() {
+      const res = await fetch('/api/admin/keys');
+      if (res.status === 401) return;
+      const data = await res.json();
+      if (!data.success) return;
+      currentKeys = data.keys || [];
+
+      const tbody = document.getElementById('keysTableBody');
+      if (currentKeys.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No API Keys yet. Click "Add API Key" to create your first one.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = currentKeys.map(k => `
+        <tr class="hover:bg-slate-850/40 transition-colors">
+          <td class="py-3 px-4 font-medium text-white">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-key text-xs text-indigo-400"></i>
+              <span>${escapeHtml(k.name)}</span>
+            </div>
+          </td>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-slate-800 text-indigo-300 border border-slate-700">
+              /${escapeHtml(k.scope)}/
+            </span>
+          </td>
+          <td class="py-3 px-4 font-mono text-xs text-slate-400">
+            ${escapeHtml(k.token.slice(0, 12))}...
+          </td>
+          <td class="py-3 px-4">
+            <button onclick="toggleKeyStatus('${k.id}', ${!k.enabled})" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium cursor-pointer transition ${
+              k.enabled ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'
+            }">
+              <span class="w-1.5 h-1.5 rounded-full ${k.enabled ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+              <span>${k.enabled ? 'Active' : 'Disabled'}</span>
+            </button>
+          </td>
+          <td class="py-3 px-4 text-xs text-slate-400">
+            <div>${k.fileCount || 0} apps</div>
+            <div class="text-[10px] text-slate-500">${k.lastUsedAt ? 'Active ' + timeAgo(k.lastUsedAt) : 'Never used'}</div>
+          </td>
+          <td class="py-3 px-4 text-right space-x-1">
+            <button onclick="openConfigModal('${k.id}')" title="Get MCP Config" class="p-1.5 text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-600 rounded-lg transition">
+              <i class="fa-solid fa-sliders text-xs"></i>
+            </button>
+            <button onclick="deleteKey('${k.id}', '${escapeHtml(k.name)}')" title="Revoke Key" class="p-1.5 text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 rounded-lg transition">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadApps() {
+      const res = await fetch('/api/admin/apps');
+      if (res.status === 401) return;
+      const data = await res.json();
+      if (!data.success) return;
+      currentApps = data.apps || [];
+      renderApps(currentApps);
+      renderRecentApps(currentApps.slice(0, 5));
+    }
+
+    function renderApps(apps) {
+      const grid = document.getElementById('appsGrid');
+      if (apps.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-sm">No micro-apps found. Once deployed via MCP or API, they will appear here.</div>`;
+        return;
+      }
+
+      grid.innerHTML = apps.map(app => `
+        <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 shadow-sm transition flex flex-col justify-between group">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-800 text-indigo-300 border border-slate-700">
+                /${escapeHtml(app.scope)}/
+              </span>
+              <span class="text-[11px] text-slate-500">${(app.sizeBytes / 1024).toFixed(1)} KB</span>
+            </div>
+            <h4 class="font-bold text-white text-base truncate group-hover:text-indigo-400 transition" title="${escapeHtml(app.title)}">
+              ${escapeHtml(app.title || app.filename)}
+            </h4>
+            <p class="text-xs text-slate-400 line-clamp-2 mt-1 mb-4 h-8">
+              ${escapeHtml(app.description || 'Single-file HTML micro application.')}
+            </p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <span class="text-slate-500 text-[11px]">${timeAgo(app.updatedAt)}</span>
+            <div class="flex items-center gap-2">
+              <button onclick="openPreview('${encodeURIComponent(app.fullUrl)}', '${escapeHtml(app.title)}')" class="px-2.5 py-1 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition" title="Preview inside modal">
+                <i class="fa-solid fa-eye text-xs"></i>
+              </button>
+              <a href="${app.fullUrl}" target="_blank" class="px-2.5 py-1 text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-lg transition" title="Open in new tab">
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+              </a>
+              <button onclick="deleteApp('${escapeHtml(app.scope)}', '${escapeHtml(app.filename)}')" class="px-2.5 py-1 text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition" title="Delete file">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRecentApps(apps) {
+      const container = document.getElementById('recentAppsList');
+      if (apps.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 py-3">No apps deployed yet. Connect Cursor or Claude to deploy your first micro-app!</div>`;
+        return;
+      }
+
+      container.innerHTML = apps.map(app => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 transition">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
+              <i class="fa-brands fa-html5 text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <a href="${app.fullUrl}" target="_blank" class="text-sm font-semibold text-white hover:text-indigo-400 truncate block">
+                ${escapeHtml(app.title)}
+              </a>
+              <div class="text-[11px] text-slate-400 flex items-center gap-2">
+                <span>/${escapeHtml(app.scope)}/${escapeHtml(app.filename)}</span>
+                <span>&bull;</span>
+                <span>${(app.sizeBytes / 1024).toFixed(1)} KB</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openPreview('${encodeURIComponent(app.fullUrl)}', '${escapeHtml(app.title)}')" class="text-xs text-slate-300 hover:text-white bg-slate-800 px-2.5 py-1.5 rounded-lg transition">Preview</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterApps() {
+      const query = document.getElementById('appSearchInput').value.toLowerCase().trim();
+      if (!query) {
+        renderApps(currentApps);
+        return;
+      }
+      const filtered = currentApps.filter(a => 
+        (a.title && a.title.toLowerCase().includes(query)) ||
+        (a.filename && a.filename.toLowerCase().includes(query)) ||
+        (a.scope && a.scope.toLowerCase().includes(query)) ||
+        (a.description && a.description.toLowerCase().includes(query))
+      );
+      renderApps(filtered);
+    }
+
+    // Modal Handlers
+    function openCreateKeyModal() {
+      document.getElementById('createKeyForm').reset();
+      document.getElementById('createKeyError').classList.add('hidden');
+      document.getElementById('createKeyModal').classList.remove('hidden');
+    }
+    function closeCreateKeyModal() {
+      document.getElementById('createKeyModal').classList.add('hidden');
+    }
+
+    document.getElementById('createKeyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errBox = document.getElementById('createKeyError');
+      errBox.classList.add('hidden');
+
+      const payload = {
+        name: document.getElementById('keyName').value.trim(),
+        scope: document.getElementById('keyScope').value.trim(),
+        token: document.getElementById('keyToken').value.trim() || undefined,
+        maxFileSizeMb: parseInt(document.getElementById('keyMaxSize').value, 10),
+        allowOverwrite: document.getElementById('keyAllowOverwrite').checked
+      };
+
+      try {
+        const res = await fetch('/api/admin/keys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          closeCreateKeyModal();
+          showToast(`Key "${payload.name}" created!`);
+          await loadAllData();
+          openConfigModal(data.key.id);
+        } else {
+          errBox.textContent = data.message || 'Failed to create key';
+          errBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        errBox.textContent = 'Server connection error';
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    async function toggleKeyStatus(id, newStatus) {
+      const res = await fetch(`/api/admin/keys/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: newStatus })
+      });
+      if (res.ok) {
+        showToast(newStatus ? 'Key enabled' : 'Key disabled');
+        await loadKeys();
+        await loadOverview();
+      }
+    }
+
+    async function deleteKey(id, name) {
+      if (!confirm(`Are you sure you want to revoke API Key "${name}"? AI clients using it will lose access immediately.`)) return;
+      const res = await fetch(`/api/admin/keys/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast(`Key "${name}" revoked.`);
+        await loadKeys();
+        await loadOverview();
+      }
+    }
+
+    async function deleteApp(scope, filename) {
+      if (!confirm(`Permanently delete "${filename}" in scope "${scope}"?`)) return;
+      const res = await fetch('/api/admin/apps', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scope, filename })
+      });
+      if (res.ok) {
+        showToast(`Deleted ${filename}`);
+        await loadApps();
+        await loadOverview();
+      }
+    }
+
+    function openConfigModal(keyId) {
+      const key = currentKeys.find(k => k.id === keyId);
+      if (!key) return;
+      activeKeyForConfig = key;
+
+      document.getElementById('configModalKeyName').textContent = key.name;
+      document.getElementById('configModalScope').textContent = `Jailed Folder: /apps/${key.scope}/ (Max: ${key.maxFileSizeMb}MB, Overwrite: ${key.allowOverwrite ? 'Yes' : 'No'})`;
+
+      showConfigTab('cursor');
+      document.getElementById('viewConfigModal').classList.remove('hidden');
+    }
+
+    function closeConfigModal() {
+      document.getElementById('viewConfigModal').classList.add('hidden');
+    }
+
+    function showConfigTab(tab) {
+      activeConfigTab = tab;
+      const key = activeKeyForConfig;
+      if (!key) return;
+
+      const tabs = ['cursor', 'claude', 'curl', 'token'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`cfgTab-${t}`);
+        if (t === tab) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white';
+        }
+      });
+
+      const area = document.getElementById('configContentArea');
+      if (tab === 'cursor') {
+        area.textContent = key.configs.cursorJson;
+      } else if (tab === 'claude') {
+        area.textContent = key.configs.claudeDesktopJson;
+      } else if (tab === 'curl') {
+        area.textContent = key.configs.curlExample;
+      } else if (tab === 'token') {
+        area.textContent = key.token;
+      }
+    }
+
+    function copyCurrentConfig() {
+      const text = document.getElementById('configContentArea').textContent;
+      navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copyBtnText');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    }
+
+    function openPreview(url, title) {
+      const decodedUrl = decodeURIComponent(url);
+      document.getElementById('previewTitle').textContent = title || 'Preview';
+      document.getElementById('previewIframe').src = decodedUrl;
+      document.getElementById('previewOpenTab').href = decodedUrl;
+      document.getElementById('previewModal').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+      document.getElementById('previewIframe').src = '';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      window.location.href = '/admin/login';
+    });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function timeAgo(dateString) {
+      if (!dateString) return 'Never';
+      const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+      if (seconds < 60) return 'just now';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+
+    // Init
+    loadAllData();
+  </script>
+</body>
+</html>

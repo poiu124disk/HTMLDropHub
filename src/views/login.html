@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - HTMLDropHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full flex items-center justify-center p-4 selection:bg-indigo-500 selection:text-white">
+  <div class="w-full max-w-md">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 mb-4 shadow-lg shadow-indigo-500/10">
+        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-white">HTMLDropHub Admin</h1>
+      <p class="text-sm text-slate-400 mt-1">Management Portal & MCP Engine Control</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <form id="loginForm" class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Admin Password</label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="password" 
+              required 
+              placeholder="Enter ADMIN_PASSWORD..." 
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              autofocus
+            >
+            <i class="fa-solid fa-lock absolute right-4 top-3.5 text-slate-500"></i>
+          </div>
+        </div>
+
+        <div id="errorAlert" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 px-4 py-2.5 rounded-xl text-sm flex items-center gap-2">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="errorMessage">Invalid password</span>
+        </div>
+
+        <button 
+          type="submit" 
+          id="submitBtn"
+          class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-medium py-3 px-4 rounded-xl transition duration-150 shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
+        >
+          <span>Sign In to Admin</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </form>
+
+      <div class="mt-6 pt-5 border-t border-slate-800/80 text-center">
+        <a href="/" class="text-xs text-slate-400 hover:text-indigo-400 transition-colors inline-flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-left text-[10px]"></i>
+          Back to Public Catalog
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const errAlert = document.getElementById('errorAlert');
+    const errMsg = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errAlert.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-75');
+
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const params = new URLSearchParams(window.location.search);
+          const redirectUrl = params.get('redirect') || '/admin';
+          window.location.href = redirectUrl;
+        } else {
+          errMsg.textContent = data.message || 'Incorrect password.';
+          errAlert.classList.remove('hidden');
+        }
+      } catch (err) {
+        errMsg.textContent = 'Network or server error. Please retry.';
+        errAlert.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+      }
+    });
+  </script>
+</body>
+</html>
