@@ -1,41 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - HTMLDropHub</title>
+  <!-- Zero-FOUC Theme Initializer -->
+  <script>
+    (function() {
+      const storedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     [x-cloak] { display: none !important; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
   </style>
 </head>
-<body class="min-h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+<body class="min-h-full flex flex-col font-sans bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 selection:bg-indigo-500 selection:text-white transition-colors duration-150">
 
   <!-- Top Navbar -->
-  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-md shadow-indigo-500/10">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-sm dark:shadow-md dark:shadow-indigo-500/10">
           <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
         </div>
         <div>
-          <span class="font-bold text-lg tracking-tight text-white flex items-center gap-2">
-            HTMLDropHub <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">ADMIN</span>
+          <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            HTMLDropHub <span class="text-[10px] font-semibold bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 px-2 py-0.5 rounded-full border dark:border-indigo-500/30">ADMIN</span>
           </span>
-          <span class="text-xs text-slate-400 block -mt-0.5">Micro-App Engine & Remote MCP</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400 block -mt-0.5">Micro-App Engine & Remote MCP</span>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <a href="/" target="_blank" class="text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+      <div class="flex items-center gap-2.5">
+        <!-- Theme Toggle Button -->
+        <button 
+          id="themeToggleBtn" 
+          onclick="toggleTheme()" 
+          class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-slate-300 dark:hover:border-slate-600 flex items-center justify-center transition shadow-sm"
+          title="Toggle Light/Dark Theme"
+          aria-label="Toggle Theme"
+        >
+          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+        </button>
+
+        <a href="/" target="_blank" class="text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
           <span class="hidden sm:inline">Public Catalog</span>
         </a>
-        <button id="logoutBtn" class="text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+        <button id="logoutBtn" class="text-xs font-medium bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
           <span>Logout</span>
         </button>
@@ -47,96 +76,96 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     <!-- Tab Navigation -->
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
       <nav class="flex space-x-2" aria-label="Tabs">
         <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
           <i class="fa-solid fa-chart-pie"></i>
           <span>Overview</span>
         </button>
-        <button onclick="switchTab('keys')" id="tab-keys" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-850">
+        <button onclick="switchTab('keys')" id="tab-keys" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
           <i class="fa-solid fa-key"></i>
           <span>API Keys & Chroot</span>
         </button>
-        <button onclick="switchTab('apps')" id="tab-apps" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-850">
-          <i class="fa-solid fa-cubes"></i>
+        <button onclick="switchTab('apps')" id="tab-apps" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-shapes"></i>
           <span>Micro-Apps</span>
         </button>
-        <button onclick="switchTab('guide')" id="tab-guide" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-850">
-          <i class="fa-solid fa-book-open"></i>
-          <span>AI / MCP Guide</span>
+        <button onclick="switchTab('guide')" id="tab-guide" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>MCP Setup Guide</span>
         </button>
       </nav>
 
-      <div class="flex items-center gap-2">
-        <button onclick="loadAllData()" class="p-2 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-lg hover:bg-slate-800 transition" title="Refresh Data">
-          <i class="fa-solid fa-rotate text-sm" id="refreshIcon"></i>
-        </button>
-      </div>
+      <button onclick="loadAllData()" class="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+        <i class="fa-solid fa-rotate text-[11px]" id="refreshIcon"></i>
+        <span>Refresh</span>
+      </button>
     </div>
 
     <!-- TAB 1: OVERVIEW -->
     <section id="content-overview" class="tab-content space-y-6">
+      <!-- 4 Top Stat Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Card 1 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm mb-2">
             <span>Total Apps</span>
-            <i class="fa-solid fa-cubes text-indigo-400"></i>
+            <i class="fa-solid fa-cubes text-indigo-500 dark:text-indigo-400"></i>
           </div>
-          <div class="text-3xl font-bold text-white" id="statTotalApps">-</div>
-          <div class="text-xs text-slate-500 mt-1" id="statScopesCount">- scopes active</div>
+          <div class="text-3xl font-bold text-slate-900 dark:text-white" id="statTotalApps">-</div>
+          <div class="text-xs text-slate-500 mt-1" id="statScopesCount">-</div>
         </div>
         <!-- Card 2 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
-            <span>API Keys</span>
-            <i class="fa-solid fa-key text-emerald-400"></i>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm mb-2">
+            <span>Active API Keys</span>
+            <i class="fa-solid fa-key text-emerald-500 dark:text-emerald-400"></i>
           </div>
-          <div class="text-3xl font-bold text-white" id="statTotalKeys">-</div>
-          <div class="text-xs text-emerald-400 mt-1" id="statActiveKeys">- active</div>
+          <div class="text-3xl font-bold text-slate-900 dark:text-white" id="statTotalKeys">-</div>
+          <div class="text-xs text-slate-500 mt-1" id="statActiveKeys">-</div>
         </div>
         <!-- Card 3 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm mb-2">
             <span>Storage Used</span>
-            <i class="fa-solid fa-hard-drive text-amber-400"></i>
+            <i class="fa-solid fa-hard-drive text-amber-500 dark:text-amber-400"></i>
           </div>
-          <div class="text-3xl font-bold text-white" id="statStorage">-</div>
+          <div class="text-3xl font-bold text-slate-900 dark:text-white" id="statStorage">-</div>
           <div class="text-xs text-slate-500 mt-1">Lightweight HTML files</div>
         </div>
         <!-- Card 4 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-sm mb-2">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-sm mb-2">
             <span>Server Uptime</span>
-            <i class="fa-solid fa-server text-sky-400"></i>
+            <i class="fa-solid fa-server text-sky-500 dark:text-sky-400"></i>
           </div>
-          <div class="text-2xl font-bold text-white truncate" id="statUptime">-</div>
+          <div class="text-2xl font-bold text-slate-900 dark:text-white truncate" id="statUptime">-</div>
           <div class="text-xs text-slate-500 mt-1" id="statNodeVersion">-</div>
         </div>
       </div>
 
       <!-- Quick Action / Banner -->
-      <div class="bg-gradient-to-r from-indigo-900/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="bg-gradient-to-r from-indigo-50 via-white to-white dark:from-indigo-900/40 dark:via-slate-900 dark:to-slate-900 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
-          <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-            <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600 dark:text-indigo-400"></i>
             Deploy HTML Micro-Apps from AI in Seconds
           </h3>
-          <p class="text-sm text-slate-400 mt-1 max-w-2xl">
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
             Create an API Key scoped to a folder, copy the SSE Remote MCP config to Cursor or Claude Desktop, and tell the AI to publish tools directly.
           </p>
         </div>
-        <button onclick="openCreateKeyModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2 shrink-0">
+        <button onclick="openCreateKeyModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl shadow-md shadow-indigo-600/30 transition flex items-center gap-2 shrink-0">
           <i class="fa-solid fa-plus text-xs"></i>
           <span>Create New API Key</span>
         </button>
       </div>
 
       <!-- Recent Apps Preview -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-        <h3 class="text-base font-semibold text-white">Recently Deployed Apps</h3>
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-sm">
+        <h3 class="text-base font-semibold text-slate-900 dark:text-white">Recently Deployed Apps</h3>
         <div id="recentAppsList" class="space-y-3">
-          <div class="text-sm text-slate-500 py-4 text-center">Loading applications...</div>
+          <div class="text-sm text-slate-400 dark:text-slate-500 py-4 text-center">Loading applications...</div>
         </div>
       </div>
     </section>
@@ -145,8 +174,8 @@
     <section id="content-keys" class="tab-content hidden space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-white">API Keys & Directory Chroot</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Manage AI client tokens and jail folders. Each token is restricted strictly to its bound directory.</p>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">API Keys & Directory Chroot</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage AI client tokens and jail folders. Each token is restricted strictly to its bound directory.</p>
         </div>
         <button onclick="openCreateKeyModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-xl transition shadow-md shadow-indigo-600/20 flex items-center gap-2 self-start sm:self-auto text-sm">
           <i class="fa-solid fa-plus text-xs"></i>
@@ -154,11 +183,11 @@
         </button>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
-              <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                 <th class="py-3 px-4">Name / Label</th>
                 <th class="py-3 px-4">Chroot Scope</th>
                 <th class="py-3 px-4">Token Preview</th>
@@ -167,9 +196,9 @@
                 <th class="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody id="keysTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+            <tbody id="keysTableBody" class="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
               <tr>
-                <td colspan="6" class="py-8 text-center text-slate-500">Loading keys...</td>
+                <td colspan="6" class="py-8 text-center text-slate-400 dark:text-slate-500">Loading keys...</td>
               </tr>
             </tbody>
           </table>
@@ -181,8 +210,8 @@
     <section id="content-apps" class="tab-content hidden space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-white">Hosted Micro-Apps</h2>
-          <p class="text-xs text-slate-400 mt-0.5">All single-file web tools currently hosted on this HTMLDropHub engine.</p>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Hosted Micro-Apps</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">All single-file web tools currently hosted on this HTMLDropHub engine.</p>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative w-full sm:w-64">
@@ -191,9 +220,9 @@
               id="appSearchInput" 
               oninput="filterApps()" 
               placeholder="Search apps or scopes..." 
-              class="w-full bg-slate-950 border border-slate-700 text-xs rounded-xl pl-9 pr-4 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-xs rounded-xl pl-9 pr-4 py-2 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
             >
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400 dark:text-slate-500"></i>
           </div>
         </div>
       </div>
@@ -205,65 +234,65 @@
 
     <!-- TAB 4: GUIDE -->
     <section id="content-guide" class="tab-content hidden space-y-6">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
         <div>
-          <h2 class="text-xl font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-network-wired text-indigo-400"></i>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-network-wired text-indigo-600 dark:text-indigo-400"></i>
             Remote MCP & AI Client Integration Guide
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Connect your AI coding assistants directly to this cloud repository via Server-Sent Events (SSE).</p>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Connect your AI coding assistants directly to this cloud repository via Server-Sent Events (SSE).</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Guide 1: Cursor -->
-          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
-            <div class="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
+          <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
               <i class="fa-solid fa-terminal"></i>
               <span>Cursor IDE Setup</span>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Open <strong>Cursor Settings &rarr; Features &rarr; MCP</strong>, click <strong>"Add New MCP Server"</strong>:
             </p>
-            <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
-              <li><strong>Type:</strong> <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">SSE</code></li>
-              <li><strong>Name:</strong> <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">HTMLDropHub</code></li>
-              <li><strong>Server URL:</strong> <code class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300" id="guideCursorUrl">https://&lt;your-domain&gt;/sse?token=&lt;YOUR_TOKEN&gt;</code></li>
+            <ul class="text-xs text-slate-700 dark:text-slate-300 list-disc list-inside space-y-1">
+              <li><strong>Type:</strong> <code class="bg-slate-200 dark:bg-slate-900 px-1.5 py-0.5 rounded text-indigo-700 dark:text-indigo-300">SSE</code></li>
+              <li><strong>Name:</strong> <code class="bg-slate-200 dark:bg-slate-900 px-1.5 py-0.5 rounded text-indigo-700 dark:text-indigo-300">HTMLDropHub</code></li>
+              <li><strong>Server URL:</strong> <code class="bg-slate-200 dark:bg-slate-900 px-1.5 py-0.5 rounded text-indigo-700 dark:text-indigo-300" id="guideCursorUrl">https://&lt;your-domain&gt;/sse?token=&lt;YOUR_TOKEN&gt;</code></li>
             </ul>
-            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 font-mono overflow-x-auto">
-              <p class="text-slate-500 mb-1">// In Cursor Chat, simply instruct:</p>
+            <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300 font-mono overflow-x-auto">
+              <p class="text-slate-400 dark:text-slate-500 mb-1">// In Cursor Chat, simply instruct:</p>
               "Build a single-file tax calculator and deploy it via drop_html tool."
             </div>
           </div>
 
           <!-- Guide 2: Claude Desktop -->
-          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
-            <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+          <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
               <i class="fa-solid fa-robot"></i>
               <span>Claude Desktop Config</span>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Add this entry inside your <code class="bg-slate-900 px-1 rounded text-emerald-300">claude_desktop_config.json</code>:
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Add this entry inside your <code class="bg-slate-200 dark:bg-slate-900 px-1 rounded text-emerald-700 dark:text-emerald-300">claude_desktop_config.json</code>:
             </p>
-            <pre class="bg-slate-900 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 font-mono overflow-x-auto">
+            <pre class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300 font-mono overflow-x-auto">
 {
   "mcpServers": {
     "htmldrophub": {
-      "url": "<span class="text-emerald-400" id="guideClaudeUrl">https://&lt;your-domain&gt;/sse?token=&lt;TOKEN&gt;</span>"
+      "url": "<span class="text-emerald-600 dark:text-emerald-400" id="guideClaudeUrl">https://&lt;your-domain&gt;/sse?token=&lt;TOKEN&gt;</span>"
     }
   }
 }</pre>
           </div>
 
           <!-- Guide 3: cURL Direct Push -->
-          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
-            <div class="flex items-center gap-2 text-amber-400 font-semibold text-sm">
+          <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-sm">
               <i class="fa-solid fa-code"></i>
               <span>cURL Direct API Push</span>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Send raw HTML or JSON payload directly from any terminal or CI/CD script:
             </p>
-            <pre class="bg-slate-900 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 font-mono overflow-x-auto">
+            <pre class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300 font-mono overflow-x-auto">
 curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
   -H "Authorization: Bearer &lt;YOUR_TOKEN&gt;" \
   -H "Content-Type: application/json" \
@@ -275,18 +304,18 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
           </div>
 
           <!-- Guide 4: Cloudflare Tunnel & Zero Trust -->
-          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
-            <div class="flex items-center gap-2 text-sky-400 font-semibold text-sm">
+          <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-semibold text-sm">
               <i class="fa-solid fa-shield-halved"></i>
               <span>Cloudflare Tunnel & Zero Trust</span>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Run safely behind Cloudflare without opening any firewall ports:
             </p>
-            <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+            <ul class="text-xs text-slate-700 dark:text-slate-300 list-disc list-inside space-y-1">
               <li>In Cloudflare Zero Trust, configure an <strong>Access Application</strong> for your domain.</li>
-              <li>Add a <strong>Bypass Rule</strong> for path <code class="bg-slate-900 px-1 text-sky-300">/sse*</code> and <code class="bg-slate-900 px-1 text-sky-300">/messages*</code> or verify headers.</li>
-              <li>When accessing <code class="bg-slate-900 px-1 text-sky-300">/admin</code>, Cloudflare automatically passes <code class="bg-slate-900 px-1 text-sky-300">Cf-Access-Authenticated-User-Email</code> header to log you in automatically!</li>
+              <li>Add a <strong>Bypass Rule</strong> for path <code class="bg-slate-200 dark:bg-slate-900 px-1 text-sky-700 dark:text-sky-300">/sse*</code> and <code class="bg-slate-200 dark:bg-slate-900 px-1 text-sky-700 dark:text-sky-300">/messages*</code> or verify headers.</li>
+              <li>When accessing <code class="bg-slate-200 dark:bg-slate-900 px-1 text-sky-700 dark:text-sky-300">/admin</code>, Cloudflare automatically passes <code class="bg-slate-200 dark:bg-slate-900 px-1 text-sky-700 dark:text-sky-300">Cf-Access-Authenticated-User-Email</code> header to log you in automatically!</li>
             </ul>
           </div>
         </div>
@@ -295,54 +324,54 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
   </main>
 
   <!-- MODAL 1: Create API Key -->
-  <div id="createKeyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-key text-indigo-400"></i>
+  <div id="createKeyModal" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 transition-colors">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-key text-indigo-600 dark:text-indigo-400"></i>
           <span>Create New API Key</span>
         </h3>
-        <button onclick="closeCreateKeyModal()" class="text-slate-400 hover:text-white text-lg">
+        <button onclick="closeCreateKeyModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <form id="createKeyForm" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Key Name / Developer Label *</label>
-          <input type="text" id="keyName" required placeholder="e.g. Cursor_Alice or Bob_Dev" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 mb-1">Key Name / Developer Label *</label>
+          <input type="text" id="keyName" required placeholder="e.g. Cursor_Alice or Bob_Dev" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 mb-1">
             Scoped Jail Directory (Chroot Folder) *
           </label>
-          <input type="text" id="keyScope" required placeholder="e.g. alice or finance" pattern="^[a-zA-Z0-9_-]+$" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          <p class="text-[11px] text-slate-500 mt-1">This token will be strictly locked inside <code class="text-indigo-300">/apps/&lt;scope&gt;</code>. Path traversals are prevented.</p>
+          <input type="text" id="keyScope" required placeholder="e.g. alice or finance" pattern="^[a-zA-Z0-9_-]+$" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <p class="text-[11px] text-slate-500 mt-1">This token will be strictly locked inside <code class="text-indigo-600 dark:text-indigo-300">/apps/&lt;scope&gt;</code>. Path traversals are prevented.</p>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Custom Secret Token (Optional)</label>
-          <input type="text" id="keyToken" placeholder="Leave blank to auto-generate (hdh_sec_...)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 mb-1">Custom Secret Token (Optional)</label>
+          <input type="text" id="keyToken" placeholder="Leave blank to auto-generate (hdh_sec_...)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Max File Size (MB)</label>
-            <input type="number" id="keyMaxSize" value="15" min="1" max="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 mb-1">Max File Size (MB)</label>
+            <input type="number" id="keyMaxSize" value="15" min="1" max="100" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
           </div>
           <div class="flex items-center pt-5">
-            <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-300">
-              <input type="checkbox" id="keyAllowOverwrite" checked class="w-4 h-4 rounded text-indigo-600 bg-slate-950 border-slate-700 focus:ring-indigo-500">
+            <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
+              <input type="checkbox" id="keyAllowOverwrite" checked class="w-4 h-4 rounded text-indigo-600 bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-indigo-500">
               <span>Allow Overwrite</span>
             </label>
           </div>
         </div>
 
-        <div id="createKeyError" class="hidden text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20"></div>
+        <div id="createKeyError" class="hidden text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-lg border border-rose-200 dark:border-rose-500/20"></div>
 
-        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-          <button type="button" onclick="closeCreateKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white">Cancel</button>
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="closeCreateKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white">Cancel</button>
           <button type="submit" id="createKeySubmitBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 text-xs rounded-xl transition shadow-md shadow-indigo-600/30">
             Generate Key
           </button>
@@ -352,59 +381,59 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
   </div>
 
   <!-- MODAL 2: View Configs / Copy -->
-  <div id="viewConfigModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+  <div id="viewConfigModal" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-4 transition-colors">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-code text-indigo-400"></i>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-code text-indigo-600 dark:text-indigo-400"></i>
             <span id="configModalKeyName">API Key Config</span>
           </h3>
-          <p class="text-xs text-slate-400 mt-0.5" id="configModalScope">Scope: -</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="configModalScope">Scope: -</p>
         </div>
-        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white text-lg">
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <!-- Config Tabs -->
-      <div class="flex space-x-2 border-b border-slate-800 pb-2">
+      <div class="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button onclick="showConfigTab('cursor')" id="cfgTab-cursor" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white">Cursor IDE</button>
-        <button onclick="showConfigTab('claude')" id="cfgTab-claude" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Claude Desktop</button>
-        <button onclick="showConfigTab('curl')" id="cfgTab-curl" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">cURL Command</button>
-        <button onclick="showConfigTab('token')" id="cfgTab-token" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Raw Token</button>
+        <button onclick="showConfigTab('claude')" id="cfgTab-claude" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">Claude Desktop</button>
+        <button onclick="showConfigTab('curl')" id="cfgTab-curl" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">cURL Command</button>
+        <button onclick="showConfigTab('token')" id="cfgTab-token" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">Raw Token</button>
       </div>
 
       <div class="relative">
-        <pre id="configContentArea" class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-200 border border-slate-800 custom-scrollbar overflow-x-auto max-h-64 whitespace-pre"></pre>
-        <button onclick="copyCurrentConfig()" class="absolute top-2 right-2 bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs px-2.5 py-1.5 rounded-lg border border-indigo-400/30 transition flex items-center gap-1.5">
+        <pre id="configContentArea" class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 custom-scrollbar overflow-x-auto max-h-64 whitespace-pre"></pre>
+        <button onclick="copyCurrentConfig()" class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-lg border border-indigo-400/30 transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-copy"></i>
           <span id="copyBtnText">Copy</span>
         </button>
       </div>
 
-      <div class="flex justify-end pt-2 border-t border-slate-800">
-        <button onclick="closeConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl transition">Close</button>
+      <div class="flex justify-end pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button onclick="closeConfigModal()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs px-4 py-2 rounded-xl transition">Close</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL 3: App Sandbox Preview -->
-  <div id="previewModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-      <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+  <div id="previewModal" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden transition-colors">
+      <div class="px-4 py-3 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2 truncate">
           <span class="w-3 h-3 rounded-full bg-rose-500"></span>
           <span class="w-3 h-3 rounded-full bg-amber-500"></span>
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-          <span class="text-xs font-semibold text-slate-300 ml-2 truncate" id="previewTitle">Preview</span>
+          <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 ml-2 truncate" id="previewTitle">Preview</span>
         </div>
         <div class="flex items-center gap-3">
-          <a id="previewOpenTab" href="#" target="_blank" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+          <a id="previewOpenTab" href="#" target="_blank" class="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center gap-1">
             <span>Open in New Tab</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
           </a>
-          <button onclick="closePreviewModal()" class="text-slate-400 hover:text-white">
+          <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
@@ -427,19 +456,36 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
     let activeKeyForConfig = null;
     let activeConfigTab = 'cursor';
 
+    // Theme Switcher Logic
+    function updateThemeUI() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const icon = document.getElementById('themeIcon');
+      if (icon) {
+        icon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-600';
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateThemeUI();
+    }
+
+    updateThemeUI();
+
     // Tabs
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
-        btn.classList.add('text-slate-400', 'hover:text-slate-200');
+        btn.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-slate-200', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
       });
 
       const activeContent = document.getElementById(`content-${tabId}`);
       const activeBtn = document.getElementById(`tab-${tabId}`);
       if (activeContent) activeContent.classList.remove('hidden');
       if (activeBtn) {
-        activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200');
+        activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-slate-200', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
         activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
       }
     }
@@ -496,43 +542,45 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
 
       const tbody = document.getElementById('keysTableBody');
       if (currentKeys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No API Keys yet. Click "Add API Key" to create your first one.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 dark:text-slate-500">No API Keys yet. Click "Add API Key" to create your first one.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = currentKeys.map(k => `
-        <tr class="hover:bg-slate-850/40 transition-colors">
-          <td class="py-3 px-4 font-medium text-white">
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+          <td class="py-3 px-4 font-medium text-slate-900 dark:text-white">
             <div class="flex items-center gap-2">
-              <i class="fa-solid fa-key text-xs text-indigo-400"></i>
+              <i class="fa-solid fa-key text-xs text-indigo-500 dark:text-indigo-400"></i>
               <span>${escapeHtml(k.name)}</span>
             </div>
           </td>
           <td class="py-3 px-4">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-slate-800 text-indigo-300 border border-slate-700">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium bg-slate-100 text-indigo-700 border border-slate-200 dark:bg-slate-800 dark:text-indigo-300 dark:border-slate-700">
               /${escapeHtml(k.scope)}/
             </span>
           </td>
-          <td class="py-3 px-4 font-mono text-xs text-slate-400">
+          <td class="py-3 px-4 font-mono text-xs text-slate-500 dark:text-slate-400">
             ${escapeHtml(k.token.slice(0, 12))}...
           </td>
           <td class="py-3 px-4">
             <button onclick="toggleKeyStatus('${k.id}', ${!k.enabled})" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium cursor-pointer transition ${
-              k.enabled ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'
+              k.enabled 
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' 
+                : 'bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
             }">
-              <span class="w-1.5 h-1.5 rounded-full ${k.enabled ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+              <span class="w-1.5 h-1.5 rounded-full ${k.enabled ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-slate-400 dark:bg-slate-500'}"></span>
               <span>${k.enabled ? 'Active' : 'Disabled'}</span>
             </button>
           </td>
-          <td class="py-3 px-4 text-xs text-slate-400">
+          <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-400">
             <div>${k.fileCount || 0} apps</div>
-            <div class="text-[10px] text-slate-500">${k.lastUsedAt ? 'Active ' + timeAgo(k.lastUsedAt) : 'Never used'}</div>
+            <div class="text-[10px] text-slate-400 dark:text-slate-500">${k.lastUsedAt ? 'Active ' + timeAgo(k.lastUsedAt) : 'Never used'}</div>
           </td>
           <td class="py-3 px-4 text-right space-x-1">
-            <button onclick="openConfigModal('${k.id}')" title="Get MCP Config" class="p-1.5 text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-600 rounded-lg transition">
+            <button onclick="openConfigModal('${k.id}')" title="Get MCP Config" class="p-1.5 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:text-white dark:bg-indigo-500/10 dark:hover:bg-indigo-600 rounded-lg transition">
               <i class="fa-solid fa-sliders text-xs"></i>
             </button>
-            <button onclick="deleteKey('${k.id}', '${escapeHtml(k.name)}')" title="Revoke Key" class="p-1.5 text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600 rounded-lg transition">
+            <button onclick="deleteKey('${k.id}', '${escapeHtml(k.name)}')" title="Revoke Key" class="p-1.5 text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 dark:text-rose-400 dark:hover:text-white dark:bg-rose-500/10 dark:hover:bg-rose-600 rounded-lg transition">
               <i class="fa-solid fa-trash-can text-xs"></i>
             </button>
           </td>
@@ -553,37 +601,37 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
     function renderApps(apps) {
       const grid = document.getElementById('appsGrid');
       if (apps.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-sm">No micro-apps found. Once deployed via MCP or API, they will appear here.</div>`;
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 dark:text-slate-500 text-sm">No micro-apps found. Once deployed via MCP or API, they will appear here.</div>`;
         return;
       }
 
       grid.innerHTML = apps.map(app => `
-        <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 shadow-sm transition flex flex-col justify-between group">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400/50 dark:hover:border-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-800 text-indigo-300 border border-slate-700">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-100 text-indigo-700 border border-slate-200 dark:bg-slate-800 dark:text-indigo-300 dark:border-slate-700">
                 /${escapeHtml(app.scope)}/
               </span>
-              <span class="text-[11px] text-slate-500">${(app.sizeBytes / 1024).toFixed(1)} KB</span>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500">${(app.sizeBytes / 1024).toFixed(1)} KB</span>
             </div>
-            <h4 class="font-bold text-white text-base truncate group-hover:text-indigo-400 transition" title="${escapeHtml(app.title)}">
+            <h4 class="font-bold text-slate-900 dark:text-white text-base truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition" title="${escapeHtml(app.title)}">
               ${escapeHtml(app.title || app.filename)}
             </h4>
-            <p class="text-xs text-slate-400 line-clamp-2 mt-1 mb-4 h-8">
+            <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1 mb-4 h-8 leading-relaxed">
               ${escapeHtml(app.description || 'Single-file HTML micro application.')}
             </p>
           </div>
 
-          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-            <span class="text-slate-500 text-[11px]">${timeAgo(app.updatedAt)}</span>
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+            <span class="text-slate-400 dark:text-slate-500 text-[11px]">${timeAgo(app.updatedAt)}</span>
             <div class="flex items-center gap-2">
-              <button onclick="openPreview('${encodeURIComponent(app.fullUrl)}', '${escapeHtml(app.title)}')" class="px-2.5 py-1 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition" title="Preview inside modal">
+              <button onclick="openPreview('${encodeURIComponent(app.fullUrl)}', '${escapeHtml(app.title)}')" class="px-2.5 py-1 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition" title="Preview inside modal">
                 <i class="fa-solid fa-eye text-xs"></i>
               </button>
-              <a href="${app.fullUrl}" target="_blank" class="px-2.5 py-1 text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-lg transition" title="Open in new tab">
+              <a href="${app.fullUrl}" target="_blank" class="px-2.5 py-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 rounded-lg transition" title="Open in new tab">
                 <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
               </a>
-              <button onclick="deleteApp('${escapeHtml(app.scope)}', '${escapeHtml(app.filename)}')" class="px-2.5 py-1 text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition" title="Delete file">
+              <button onclick="deleteApp('${escapeHtml(app.scope)}', '${escapeHtml(app.filename)}')" class="px-2.5 py-1 text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 rounded-lg transition" title="Delete file">
                 <i class="fa-solid fa-trash-can text-xs"></i>
               </button>
             </div>
@@ -595,21 +643,21 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
     function renderRecentApps(apps) {
       const container = document.getElementById('recentAppsList');
       if (apps.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-500 py-3">No apps deployed yet. Connect Cursor or Claude to deploy your first micro-app!</div>`;
+        container.innerHTML = `<div class="text-xs text-slate-400 dark:text-slate-500 py-3">No apps deployed yet. Connect Cursor or Claude to deploy your first micro-app!</div>`;
         return;
       }
 
       container.innerHTML = apps.map(app => `
-        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 transition">
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
               <i class="fa-brands fa-html5 text-sm"></i>
             </div>
             <div class="min-w-0">
-              <a href="${app.fullUrl}" target="_blank" class="text-sm font-semibold text-white hover:text-indigo-400 truncate block">
+              <a href="${app.fullUrl}" target="_blank" class="text-sm font-semibold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 truncate block">
                 ${escapeHtml(app.title)}
               </a>
-              <div class="text-[11px] text-slate-400 flex items-center gap-2">
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <span>/${escapeHtml(app.scope)}/${escapeHtml(app.filename)}</span>
                 <span>&bull;</span>
                 <span>${(app.sizeBytes / 1024).toFixed(1)} KB</span>
@@ -617,7 +665,7 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
             </div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="openPreview('${encodeURIComponent(app.fullUrl)}', '${escapeHtml(app.title)}')" class="text-xs text-slate-300 hover:text-white bg-slate-800 px-2.5 py-1.5 rounded-lg transition">Preview</button>
+            <button onclick="openPreview('${encodeURIComponent(app.fullUrl)}', '${escapeHtml(app.title)}')" class="text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-200/80 hover:bg-slate-200 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg transition">Preview</button>
           </div>
         </div>
       `).join('');
@@ -708,7 +756,7 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
 
     async function deleteApp(scope, filename) {
       if (!confirm(`Permanently delete "${filename}" in scope "${scope}"?`)) return;
-      const res = await fetch('/api/admin/apps', {
+      const res = await fetch(`/api/admin/apps`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scope, filename })
@@ -747,7 +795,7 @@ curl -X POST "<span id="guideCurlUrl">http://localhost:3000</span>/api/drop" \
         if (t === tab) {
           btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white';
         } else {
-          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white';
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
         }
       });
 
