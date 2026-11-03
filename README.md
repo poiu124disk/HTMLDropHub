@@ -1,64 +1,64 @@
 # 🚀 HTMLDropHub
 
-> **AI 時代的輕量微應用（Micro-App）託管平台與雲端 MCP 發布引擎**
+> **Lightweight Single-File Micro-App Hosting Platform & Cloud Remote MCP Publishing Engine for the AI Era**
 
 [![Node.js](https://img.shields.io/badge/Node.js-26-green.svg)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![MCP](https://img.shields.io/badge/Remote_MCP-SSE-purple.svg)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-現代開發者頻繁使用 AI（Cursor、Claude、ChatGPT、Antigravity）生成大量的「單檔 HTML 微應用」或「輕量小工具」。
-**HTMLDropHub** 解決了傳統 PaaS 太重、靜態畫布無權限隔離、以及手動複製檔案繁瑣的痛點。
+Modern developers frequently leverage AI assistants (Cursor, Claude, ChatGPT, Antigravity) to produce extensive collections of "single-file HTML micro-apps" and "lightweight web utilities".
+**HTMLDropHub** solves the headaches of heavy traditional PaaS platforms, unisolated static sandboxes, and tedious manual file copying.
 
 ---
 
-## 🌟 核心特色
+## 🌟 Core Features
 
-1. **極致輕量與零伺服器負載**：
-   - 專為單檔純前端 HTML 設計，運算 100% 在訪客瀏覽器端執行，對主機硬體與 CPU 零壓力。
-2. **雲端 Remote MCP (SSE) 直連發布**：
-   - 無需在本機維護繁瑣腳本，Cursor 或 Claude 只要配置雲端 URL 與專屬 Token，即可透過 Tool Call 直接將生成的 HTML 派發上線。
-3. **Chroot 權限隔離（Jail 邊界防護）**：
-   - 每個 API Key 強制鎖定在指定目錄（例如 `/apps/devA/`）。
-   - 具備嚴格的路徑安全校驗（Path Traversal Guard），全面阻斷 `../`、`..\\`、隱藏檔與危險字元，確保多開發者完全互不干擾。
-4. **管理員系統 (Admin Dashboard)**：
-   - 內建 `/admin` 後台，支援密碼登入或 Cloudflare Zero Trust 標頭認證。
-   - 一鍵生成並複製 Cursor、Claude Desktop 與 cURL 的 MCP 連線配置。
-5. **自動微應用導航目錄 (App Catalog)**：
-   - 根目錄 `/` 自動以現代 Tailwind 卡片呈現已發布工具，支援即時搜尋、分類篩選與**沙盒內嵌預覽 (Live Sandbox Modal)**。
-6. **單一 Docker 容器與 Cloudflare Tunnel 整合**：
-   - 體積約 100MB，一鍵使用 Docker Compose 啟動，支援 Volume 資料持久化與 Cloudflare 免開 Port 外網穿透。
+1. **Ultra-Lightweight & Zero Server Load**:
+   - Tailored specifically for standalone frontend HTML files. Execution occurs 100% within the client's browser, posing zero load on server CPU and memory.
+2. **Cloud Remote MCP (SSE) Direct Publishing**:
+   - No need to maintain complex local scripts. Simply configure Cursor or Claude with your remote URL and dedicated Token to deploy generated HTML directly via tool calls.
+3. **Chroot Permission Isolation (Jail Boundary Protection)**:
+   - Every API Key is strictly jailed to its designated scope directory (e.g., `/apps/devA/`).
+   - Hardened with a Path Traversal Guard blocking `../`, `..\`, dotfiles, and dangerous characters to guarantee multi-tenant security.
+4. **Admin Dashboard**:
+   - Built-in `/admin` dashboard supporting password sign-in or Cloudflare Zero Trust header authentication.
+   - One-click snippet generation and copying for Cursor, Claude Desktop, and cURL MCP integrations.
+5. **Automated Micro-App Catalog**:
+   - The root `/` automatically displays modern Tailwind cards for all deployed tools, supporting instant keyword search, scope filtering, and **Live Sandbox Modal previews**.
+6. **Single Docker Container & Cloudflare Tunnel Integration**:
+   - Small footprint (~100MB), instant startup with Docker Compose, volume persistence, and zero-open-port public exposure via Cloudflare Tunnel.
 
 ---
 
-## 🏗️ 系統架構圖
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph Clients["客戶端 (Clients)"]
+    subgraph Clients["Clients"]
         Cursor["Cursor / Claude (Remote MCP via SSE)"]
-        Dev["開發者 / CI (cURL / HTTP REST)"]
-        Guest["終端訪客 (Browser)"]
-        Admin["管理員 (Admin Dashboard)"]
+        Dev["Developer / CI (cURL / HTTP REST)"]
+        Guest["End Visitor (Browser)"]
+        Admin["Administrator (Admin Dashboard)"]
     end
 
-    subgraph Tunnel["外網邊緣 (Cloudflare)"]
+    subgraph Tunnel["Cloud Edge (Cloudflare)"]
         CF["Cloudflare Tunnel / Zero Trust Gateway"]
     end
 
-    subgraph Engine["HTMLDropHub 單一容器 (Node 26 Alpine)"]
+    subgraph Engine["HTMLDropHub Container (Node 26 Alpine)"]
         Router["HTTP Router & Chroot Middleware"]
         SSE["Remote MCP Engine (/sse)"]
         REST["REST API (/api/drop)"]
-        Static["靜態微應用服務 (/:scope/:file)"]
-        CatalogUI["App Catalog 導航首頁 (/)"]
-        AdminUI["Admin Dashboard 後台 (/admin)"]
+        Static["Static Micro-App Server (/:scope/:file)"]
+        CatalogUI["App Catalog Homepage (/)"]
+        AdminUI["Admin Dashboard (/admin)"]
     end
 
-    subgraph Storage["持久化目錄 (/app/data)"]
+    subgraph Storage["Persistent Storage (/app/data)"]
         Keys["keys.json (API Keys, Scopes, Stats)"]
-        Meta["metadata.json (標題、描述、時間)"]
-        Apps["apps/ (隔離資料夾: /devA/, /finance/)"]
+        Meta["metadata.json (Titles, Descriptions, Timestamps)"]
+        Apps["apps/ (Isolated scopes: /devA/, /finance/)"]
     end
 
     Cursor -->|SSE Connection| CF
@@ -82,60 +82,60 @@ flowchart TD
 
 ---
 
-## ⚡ 快速開始 (Quick Start)
+## ⚡ Quick Start
 
-### 方法一：使用 Docker Compose（推薦生產部署）
+### Method 1: Using Docker Compose (Recommended for Production)
 
-1. **複製設定檔**：
+1. **Clone Repository & Prepare Environment**:
    ```bash
    git clone https://github.com/your-username/HTMLDropHub.git
    cd HTMLDropHub
    cp .env.example .env
    ```
-2. **編輯 `.env`**：
+2. **Configure `.env`**:
    ```env
    PORT=3000
    PUBLIC_BASE_URL=https://tools.poiu124.cyou
    ADMIN_PASSWORD=your_secure_password
    ```
-3. **啟動容器**：
+3. **Start the Container**:
    ```bash
    docker compose up -d
    ```
-4. **訪問服務**：
-   - App Catalog 首頁：`http://localhost:3000/`
-   - 管理員後台：`http://localhost:3000/admin` (使用設定的密碼登入)
+4. **Access the Service**:
+   - App Catalog Homepage: `http://localhost:3000/`
+   - Admin Dashboard: `http://localhost:3000/admin` (Sign in with your configured admin password)
 
 ---
 
-### 方法二：本機 Node.js 直接運行
+### Method 2: Running Directly with Local Node.js
 
-1. **環境需求**：Node.js 20+（推薦 Node.js 26）
-2. **安裝與啟動**：
+1. **Prerequisites**: Node.js 20+ (Node.js 26 recommended)
+2. **Install & Start**:
    ```bash
    npm install
    npm start
    ```
-3. **執行自動化測試**：
+3. **Run Automated Test Suite**:
    ```bash
    npm test
    ```
 
 ---
 
-## 🤖 AI 客戶端連線配置 (Remote MCP)
+## 🤖 AI Client Setup (Remote MCP)
 
-### 1. Cursor IDE 配置
-1. 開啟 Cursor 設定：**Cursor Settings** &rarr; **Features** &rarr; **MCP**。
-2. 點擊 **"Add New MCP Server"**：
+### 1. Cursor IDE Setup
+1. Open Cursor Settings: **Cursor Settings** &rarr; **Features** &rarr; **MCP**.
+2. Click **"Add New MCP Server"**:
    - **Type**: `SSE`
    - **Name**: `HTMLDropHub`
    - **Server URL**: `https://tools.poiu124.cyou/sse?token=hdh_sec_xxxxxx`
-3. 在 Cursor Chat 中提問：
-   > *"幫我寫一個互動式財務計算小工具，並使用 drop_html 工具發布為單檔 HTML。"*
+3. Prompt Cursor in Chat:
+   > *"Write an interactive financial calculator and deploy it as a single-file HTML micro-app using the drop_html tool."*
 
-### 2. Claude Desktop 配置
-在 `claude_desktop_config.json` 中加入：
+### 2. Claude Desktop Setup
+Add the server entry to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
@@ -146,7 +146,7 @@ flowchart TD
 }
 ```
 
-### 3. cURL 直接發布 (CLI / CI/CD)
+### 3. Direct cURL Deployment (CLI / CI/CD)
 ```bash
 curl -X POST "https://tools.poiu124.cyou/api/drop" \
   -H "Authorization: Bearer hdh_sec_xxxxxx" \
@@ -161,29 +161,29 @@ curl -X POST "https://tools.poiu124.cyou/api/drop" \
 
 ---
 
-## 🛡️ 安全防護與 Chroot 隔離機制
+## 🛡️ Security & Chroot Isolation Mechanism
 
-| 攻擊手法 | HTMLDropHub 防禦策略 |
+| Attack Vector | HTMLDropHub Defense Strategy |
 | :--- | :--- |
-| **路徑穿越 (`../../etc/passwd`)** | `resolveSafePath` 強制將路徑限定在 `apps/<scope>/`，任何超出目錄邊界的解析一律拋出 403 Forbidden。 |
-| **危險副檔名 (`.exe`, `.sh`, `.php`)** | 僅允許 `.html` 與 `.htm`，副檔名白名單嚴格過濾。 |
-| **隱藏檔與點檔案 (`.env`, `.git`)** | 阻絕任何以 `.` 開頭的檔名。 |
-| **檔案大小超額衝擊** | 每個 API Key 可限制單檔大小上限（預設 15MB），超額拒絕寫入。 |
-| **防止惡意覆蓋** | 可於 API Key 開關 `allowOverwrite: false`，保護既有微應用。 |
+| **Path Traversal (`../../etc/passwd`)** | `resolveSafePath` strictly imprisons all file targets inside `apps/<scope>/`. Resolving outside the jail throws 403 Forbidden. |
+| **Dangerous Extensions (`.exe`, `.sh`, `.php`)** | Only `.html` and `.htm` files are accepted through a strict extension whitelist. |
+| **Hidden & Dotfiles (`.env`, `.git`)** | Rejects any filename starting with a dot (`.`). |
+| **File Flooding & Memory Exhaustion** | Enforces maximum upload sizes per API Key (default 15MB); oversized files are blocked before storage. |
+| **Accidental Overwrites** | Supports `allowOverwrite: false` per key to preserve existing production micro-apps. |
 
 ---
 
-## ☁️ Cloudflare Tunnel 與 Zero Trust 設定建議
+## ☁️ Cloudflare Tunnel & Zero Trust Setup
 
-為了達到主機完全對外**免開實體 Port**，可搭配 Cloudflare Tunnel：
+To operate securely with **zero public inbound open ports**, deploy alongside Cloudflare Tunnel:
 
-1. 在 [Cloudflare Zero Trust 控制台](https://one.dash.cloudflare.com/) 建立 Tunnel。
-2. 將 `TUNNEL_TOKEN` 填入 `.env`，並取消 `docker-compose.yml` 中 `tunnel` 服務的註釋。
-3. 在 Cloudflare Public Hostname 指向：
+1. Create a tunnel in the [Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com/).
+2. Set your `TUNNEL_TOKEN` in `.env`, and uncomment the `tunnel` service block in `docker-compose.yml`.
+3. Point your Cloudflare Public Hostname to:
    - **Service**: `http://htmldrophub:3000`
-4. 於 Cloudflare Access 設定存取規則：
-   - `/admin`：要求同仁 Email 驗證（驗證成功後系統會自動辨識 `Cf-Access-Authenticated-User-Email` 登入）。
-   - `/sse*` 與 `/messages*`：設定 Bypass 或允許攜帶 Token 連線。
+4. Set Access Policies:
+   - `/admin`: Require email verification (the engine recognizes the `Cf-Access-Authenticated-User-Email` header automatically).
+   - `/sse*` and `/messages*`: Set to Bypass or allow Bearer/Token header pass-through.
 
 ---
 

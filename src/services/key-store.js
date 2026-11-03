@@ -33,7 +33,17 @@ class KeyStore {
     const data = JSON.stringify({ keys: this.keys }, null, 2);
     const tempFile = path.join(path.dirname(KEYS_FILE), `.__tmp_keys_${crypto.randomUUID()}`);
     await fs.writeFile(tempFile, data, 'utf8');
-    await fs.rename(tempFile, KEYS_FILE);
+    try {
+      await fs.rename(tempFile, KEYS_FILE);
+    } catch (err) {
+      if (['EPERM', 'EEXIST', 'EBUSY'].includes(err.code)) {
+        await fs.copyFile(tempFile, KEYS_FILE);
+        await fs.unlink(tempFile).catch(() => {});
+      } else {
+        await fs.unlink(tempFile).catch(() => {});
+        throw err;
+      }
+    }
   }
 
   async getAllKeys() {

@@ -35,7 +35,17 @@ class MetadataStore {
     const data = JSON.stringify({ apps: this.apps }, null, 2);
     const tempFile = path.join(path.dirname(METADATA_FILE), `.__tmp_meta_${crypto.randomUUID()}`);
     await fs.writeFile(tempFile, data, 'utf8');
-    await fs.rename(tempFile, METADATA_FILE);
+    try {
+      await fs.rename(tempFile, METADATA_FILE);
+    } catch (err) {
+      if (['EPERM', 'EEXIST', 'EBUSY'].includes(err.code)) {
+        await fs.copyFile(tempFile, METADATA_FILE);
+        await fs.unlink(tempFile).catch(() => {});
+      } else {
+        await fs.unlink(tempFile).catch(() => {});
+        throw err;
+      }
+    }
   }
 
   getAppKey(scope, filename) {

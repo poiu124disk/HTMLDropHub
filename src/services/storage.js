@@ -39,10 +39,20 @@ export async function saveAppFile(scope, rawFilename, content, options = {}) {
     throw new SecurityError(`File '${filename}' already exists and overwrite is disabled for this key.`, 409);
   }
 
-  // Atomic write via temp file
+  // Atomic write via temp file (with Windows EPERM fallback)
   const tempPath = path.join(scopeDir, `.__tmp_${crypto.randomUUID()}`);
   await fs.writeFile(tempPath, buffer);
-  await fs.rename(tempPath, resolvedPath);
+  try {
+    await fs.rename(tempPath, resolvedPath);
+  } catch (err) {
+    if (['EPERM', 'EEXIST', 'EBUSY'].includes(err.code)) {
+      await fs.copyFile(tempPath, resolvedPath);
+      await fs.unlink(tempPath).catch(() => {});
+    } else {
+      await fs.unlink(tempPath).catch(() => {});
+      throw err;
+    }
+  }
 
   return {
     filename,
