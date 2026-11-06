@@ -1,6 +1,5 @@
 import { PUBLIC_BASE_URL } from '../config.js';
 import { saveAppFile } from '../services/storage.js';
-import { keyStore } from '../services/key-store.js';
 import { metadataStore } from '../services/metadata-store.js';
 import { extractHtmlMetadata, SecurityError } from '../auth/security.js';
 
@@ -64,9 +63,6 @@ export async function handleDropApi(req, res) {
       description: appDescription,
       sizeBytes: saved.sizeBytes
     });
-
-    // Record key usage
-    await keyStore.recordKeyUsage(apiKey.token, saved.isUpdate ? 0 : 1);
 
     const appUrl = `${PUBLIC_BASE_URL}/${scope}/${saved.filename}`;
 

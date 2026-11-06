@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { ALLOWED_EXTENSIONS } from '../config.js';
 
 export class SecurityError extends Error {
   constructor(message, statusCode = 400) {
@@ -56,12 +57,14 @@ export function sanitizeFilename(rawFilename) {
     throw new SecurityError('Filename contains invalid characters.', 400);
   }
 
-  // Enforce valid web extensions (case-insensitive)
+  // Enforce configured extensions (case-insensitive)
   const lower = trimmed.toLowerCase();
-  const allowedExtensions = ['.html', '.htm'];
-  const hasValidExt = allowedExtensions.some(ext => lower.endsWith(ext));
+  const hasValidExt = ALLOWED_EXTENSIONS.some(ext => lower.endsWith(ext));
   if (!hasValidExt) {
-    throw new SecurityError(`Invalid file extension. Only ${allowedExtensions.join(', ')} are permitted.`, 400);
+    throw new SecurityError(
+      `Invalid file extension. Only ${ALLOWED_EXTENSIONS.join(', ')} are permitted.`,
+      400
+    );
   }
 
   return trimmed;

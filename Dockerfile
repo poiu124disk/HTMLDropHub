@@ -6,15 +6,15 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
-ENV PORT=3000
 ENV DATA_DIR=/app/data
 
 # Install dependencies (only production)
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Copy application source code
+# Copy application source code and configuration reference
 COPY src ./src
+COPY config.example.json ./config.example.json
 
 # Create persistent data directory and grant permissions to non-root user
 RUN mkdir -p /app/data/apps && chown -R node:node /app

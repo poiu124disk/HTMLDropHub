@@ -1,0 +1,38 @@
+{
+  "server": {
+    "port": 3000,
+    "publicBaseUrl": "http://localhost:3000",
+    "trustProxy": true,
+    "allowPublicCatalog": true
+  },
+  "limits": {
+    "allowedExtensions": [".html", ".htm"],
+    "maxFileSizeMb": 15,
+    "maxScopeSizeMb": 200,
+    "maxScopeFileCount": 100
+  },
+  "defaults": {
+    "allowOverwrite": true
+  },
+  "users": {
+    "maxApiKeysPerUser": 5
+  },
+  "auth": {
+    "sessionSecret": "",
+    "google": {
+      "clientId": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+      "clientSecret": "YOUR_GOOGLE_OAUTH_CLIENT_SECRET",
+      "redirectUri": "http://localhost:3000/auth/google/callback",
+      "allowedEmailDomains": []
+    }
+  },
+  "apiKeys": [
+    {
+      "name": "Default_Developer",
+      "token": "hdh_sec_replace_this_with_a_long_random_token",
+      "scope": "demo",
+      "enabled": true,
+      "allowOverwrite": true
+    }
+  ]
+}

@@ -2,9 +2,8 @@ import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { APPS_DIR, METADATA_FILE } from '../config.js';
+import { ALLOWED_EXTENSIONS, APPS_DIR, METADATA_FILE } from '../config.js';
 import { extractHtmlMetadata } from '../auth/security.js';
-import { keyStore } from './key-store.js';
 
 class MetadataStore {
   constructor() {
@@ -111,24 +110,21 @@ class MetadataStore {
     try {
       const scopeDirs = await fs.readdir(APPS_DIR, { withFileTypes: true });
       const currentKeysOnDisk = new Set();
-      const countByScope = {};
 
       for (const scopeEntry of scopeDirs) {
         if (!scopeEntry.isDirectory() || scopeEntry.name.startsWith('.')) continue;
         const scope = scopeEntry.name;
         const scopePath = path.join(APPS_DIR, scope);
-        countByScope[scope] = 0;
 
         const files = await fs.readdir(scopePath, { withFileTypes: true });
         for (const fileEntry of files) {
           if (!fileEntry.isFile() || fileEntry.name.startsWith('.')) continue;
           const filename = fileEntry.name;
           const lower = filename.toLowerCase();
-          if (!lower.endsWith('.html') && !lower.endsWith('.htm')) continue;
+          if (!ALLOWED_EXTENSIONS.some(ext => lower.endsWith(ext))) continue;
 
           const appKey = this.getAppKey(scope, filename);
           currentKeysOnDisk.add(appKey);
-          countByScope[scope]++;
 
           const fullFilePath = path.join(scopePath, filename);
           const stat = await fs.stat(fullFilePath);
@@ -175,9 +171,6 @@ class MetadataStore {
       if (cleaned || Object.keys(this.apps).length > 0) {
         await this._save();
       }
-
-      // Sync key store file counts
-      await keyStore.syncFileCounts(countByScope);
     } catch (err) {
       console.error('[MetadataStore] Error syncing with disk:', err.message);
     }

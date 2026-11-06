@@ -1,10 +1,20 @@
-import fs from 'node:fs/promises';
-import fsSync from 'node:fs';
-import path from 'node:path';
 import crypto from 'node:crypto';
-import { KEYS_FILE, MAX_FILE_SIZE_MB } from '../config.js';
+import {
+  API_KEYS,
+  DEFAULT_ALLOW_OVERWRITE,
+  MAX_FILE_SIZE_MB
+} from '../config.js';
 import { validateScope, SecurityError } from '../auth/security.js';
+import { generateApiToken } from './api-token.js';
+import { userStore } from './user-store.js';
 
+/**
+ * Read-only API key store backed by config.json.
+ *
+ * Keys are defined in the `apiKeys` array of the configuration file. Runtime
+ * keys added through createKey() live in memory only and are intended for
+ * tests or embedded usage; they are never written back to disk.
+ */
 class KeyStore {
   constructor() {
     this.keys = [];
@@ -13,71 +23,94 @@ class KeyStore {
 
   async init() {
     if (this.loaded) return;
-    try {
-      if (fsSync.existsSync(KEYS_FILE)) {
-        const raw = await fs.readFile(KEYS_FILE, 'utf8');
-        const data = JSON.parse(raw);
-        this.keys = Array.isArray(data.keys) ? data.keys : [];
-      } else {
-        this.keys = [];
-        await this._save();
-      }
-    } catch (err) {
-      console.error('[KeyStore] Failed to load keys.json, initializing empty:', err.message);
-      this.keys = [];
-    }
-    this.loaded = true;
-  }
 
-  async _save() {
-    const data = JSON.stringify({ keys: this.keys }, null, 2);
-    const tempFile = path.join(path.dirname(KEYS_FILE), `.__tmp_keys_${crypto.randomUUID()}`);
-    await fs.writeFile(tempFile, data, 'utf8');
-    try {
-      await fs.rename(tempFile, KEYS_FILE);
-    } catch (err) {
-      if (['EPERM', 'EEXIST', 'EBUSY'].includes(err.code)) {
-        await fs.copyFile(tempFile, KEYS_FILE);
-        await fs.unlink(tempFile).catch(() => {});
-      } else {
-        await fs.unlink(tempFile).catch(() => {});
-        throw err;
+    const seenTokens = new Set();
+    this.keys = API_KEYS.map((entry, index) => {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+        throw new Error(`apiKeys[${index}] must be a JSON object.`);
       }
+
+      const token = typeof entry.token === 'string' ? entry.token.trim() : '';
+      if (!token) {
+        throw new Error(`apiKeys[${index}].token is required.`);
+      }
+      if (seenTokens.has(token)) {
+        throw new Error(`apiKeys[${index}].token is duplicated.`);
+      }
+      seenTokens.add(token);
+
+      let scope;
+      try {
+        scope = validateScope(entry.scope);
+      } catch (err) {
+        throw new Error(`apiKeys[${index}].scope is invalid: ${err.message}`);
+      }
+
+      const maxFileSizeMb = Number(entry.maxFileSizeMb);
+
+      return {
+        id: entry.id || `cfg_${crypto.createHash('sha256').update(token).digest('hex').slice(0, 16)}`,
+        name: String(entry.name || `Key_${index + 1}`).trim(),
+        token,
+        scope,
+        enabled: entry.enabled !== false,
+        allowOverwrite: entry.allowOverwrite !== undefined
+          ? Boolean(entry.allowOverwrite)
+          : DEFAULT_ALLOW_OVERWRITE,
+        maxFileSizeMb: Number.isFinite(maxFileSizeMb) && maxFileSizeMb > 0
+          ? Math.min(maxFileSizeMb, MAX_FILE_SIZE_MB)
+          : MAX_FILE_SIZE_MB,
+        notes: typeof entry.notes === 'string' ? entry.notes.trim() : ''
+      };
+    });
+
+    this.loaded = true;
+
+    if (this.keys.length === 0) {
+      console.warn('[KeyStore] No API keys configured. Add entries to "apiKeys" in the configuration file.');
     }
   }
 
   async getAllKeys() {
     await this.init();
-    return [...this.keys];
+    const configKeys = this.keys.map(key => ({ ...key }));
+    const userKeys = await userStore.getAllKeys();
+    return [...configKeys, ...userKeys];
   }
 
   async getKeyByToken(token) {
     if (!token || typeof token !== 'string') return null;
     await this.init();
     const cleanToken = token.trim();
-    const found = this.keys.find(k => k.token === cleanToken);
-    if (!found) return null;
-    return { ...found };
+    const found = this.keys.find(key => key.token === cleanToken);
+    if (found) return { ...found };
+
+    // Fall back to keys created by Google-authenticated users.
+    return userStore.getKeyByToken(cleanToken);
   }
 
   async getKeyById(id) {
     await this.init();
-    const found = this.keys.find(k => k.id === id);
+    const found = this.keys.find(key => key.id === id);
     return found ? { ...found } : null;
   }
 
   generateToken() {
-    const randomHex = crypto.randomBytes(20).toString('hex');
-    return `hdh_sec_${randomHex}`;
+    return generateApiToken();
   }
 
-  async createKey(options) {
+  /**
+   * Registers an in-memory key. Configuration keys should be added to the
+   * `apiKeys` array in config.json instead.
+   */
+  async createKey(options = {}) {
     await this.init();
+
     const {
       name,
       scope,
       token = this.generateToken(),
-      allowOverwrite = true,
+      allowOverwrite = DEFAULT_ALLOW_OVERWRITE,
       maxFileSizeMb = MAX_FILE_SIZE_MB,
       enabled = true,
       notes = ''
@@ -88,89 +121,31 @@ class KeyStore {
     }
 
     const safeScope = validateScope(scope);
+    const cleanToken = String(token).trim();
 
-    // Check if token already exists
-    if (this.keys.some(k => k.token === token)) {
-      throw new SecurityError('Token already exists. Please regenerate or choose a different token.', 400);
+    if (!cleanToken) {
+      throw new SecurityError('Token is required.', 400);
+    }
+    if (this.keys.some(key => key.token === cleanToken)) {
+      throw new SecurityError('Token already exists. Choose a different token.', 400);
     }
 
+    const numericMaxSize = Number(maxFileSizeMb);
     const newKey = {
       id: crypto.randomUUID(),
       name: name.trim(),
-      token: token.trim(),
+      token: cleanToken,
       scope: safeScope,
       enabled: Boolean(enabled),
       allowOverwrite: Boolean(allowOverwrite),
-      maxFileSizeMb: Number(maxFileSizeMb) || MAX_FILE_SIZE_MB,
-      notes: typeof notes === 'string' ? notes.trim() : '',
-      createdAt: new Date().toISOString(),
-      lastUsedAt: null,
-      fileCount: 0
+      maxFileSizeMb: Number.isFinite(numericMaxSize) && numericMaxSize > 0
+        ? Math.min(numericMaxSize, MAX_FILE_SIZE_MB)
+        : MAX_FILE_SIZE_MB,
+      notes: typeof notes === 'string' ? notes.trim() : ''
     };
 
     this.keys.push(newKey);
-    await this._save();
-    return newKey;
-  }
-
-  async updateKey(id, updates) {
-    await this.init();
-    const idx = this.keys.findIndex(k => k.id === id);
-    if (idx === -1) {
-      throw new SecurityError('Key not found.', 404);
-    }
-
-    const current = this.keys[idx];
-    const updated = { ...current };
-
-    if (updates.name !== undefined) updated.name = updates.name.trim();
-    if (updates.scope !== undefined) updated.scope = validateScope(updates.scope);
-    if (updates.enabled !== undefined) updated.enabled = Boolean(updates.enabled);
-    if (updates.allowOverwrite !== undefined) updated.allowOverwrite = Boolean(updates.allowOverwrite);
-    if (updates.maxFileSizeMb !== undefined) updated.maxFileSizeMb = Number(updates.maxFileSizeMb) || MAX_FILE_SIZE_MB;
-    if (updates.notes !== undefined) updated.notes = updates.notes;
-
-    this.keys[idx] = updated;
-    await this._save();
-    return updated;
-  }
-
-  async deleteKey(id) {
-    await this.init();
-    const initialLen = this.keys.length;
-    this.keys = this.keys.filter(k => k.id !== id);
-    if (this.keys.length !== initialLen) {
-      await this._save();
-      return true;
-    }
-    return false;
-  }
-
-  async recordKeyUsage(token, fileCountDelta = 0) {
-    await this.init();
-    const key = this.keys.find(k => k.token === token);
-    if (key) {
-      key.lastUsedAt = new Date().toISOString();
-      if (fileCountDelta !== 0) {
-        key.fileCount = Math.max(0, (key.fileCount || 0) + fileCountDelta);
-      }
-      await this._save();
-    }
-  }
-
-  async syncFileCounts(countByScopeMap) {
-    await this.init();
-    let changed = false;
-    for (const key of this.keys) {
-      const count = countByScopeMap[key.scope] || 0;
-      if (key.fileCount !== count) {
-        key.fileCount = count;
-        changed = true;
-      }
-    }
-    if (changed) {
-      await this._save();
-    }
+    return { ...newKey };
   }
 }
 

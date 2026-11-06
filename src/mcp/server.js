@@ -3,7 +3,6 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { z } from 'zod';
 import { PUBLIC_BASE_URL } from '../config.js';
 import { saveAppFile, deleteAppFile } from '../services/storage.js';
-import { keyStore } from '../services/key-store.js';
 import { metadataStore } from '../services/metadata-store.js';
 import { extractHtmlMetadata, SecurityError } from '../auth/security.js';
 
@@ -50,9 +49,6 @@ export function createScopedMcpServer(apiKey) {
           description: appDescription,
           sizeBytes: saved.sizeBytes
         });
-
-        // Record key usage and update counts
-        await keyStore.recordKeyUsage(apiKey.token, saved.isUpdate ? 0 : 1);
 
         const appUrl = `${PUBLIC_BASE_URL}/${scope}/${saved.filename}`;
         const responseMessage = [
@@ -151,7 +147,6 @@ export function createScopedMcpServer(apiKey) {
         }
 
         await metadataStore.removeApp(apiKey.scope, filename);
-        await keyStore.recordKeyUsage(apiKey.token, -1);
 
         return {
           content: [
@@ -212,7 +207,6 @@ export async function handleSseConnection(req, res) {
   });
 
   await server.connect(transport);
-  await keyStore.recordKeyUsage(apiKey.token);
 }
 
 /**

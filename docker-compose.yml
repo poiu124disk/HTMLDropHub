@@ -11,13 +11,11 @@ services:
       # If exclusively using Cloudflare Tunnel, you can comment this port out.
       - "${PORT:-3000}:3000"
     environment:
-      - PORT=3000
-      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-http://localhost:3000}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
-      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-15}
-      - ALLOW_PUBLIC_CATALOG=${ALLOW_PUBLIC_CATALOG:-true}
+      - DATA_DIR=${DATA_DIR:-/app/data}
+      - CONFIG_FILE=${CONFIG_FILE:-/app/data/config.json}
     volumes:
-      # Persistent storage: all HTML micro-apps and API keys live here
+      # Persistent storage: config.json, metadata and all HTML micro-apps live here.
+      # Edit ./data/config.json to configure the server, limits and API keys.
       - ./data:/app/data
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]

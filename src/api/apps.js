@@ -1,6 +1,5 @@
 import { PUBLIC_BASE_URL } from '../config.js';
 import { deleteAppFile } from '../services/storage.js';
-import { keyStore } from '../services/key-store.js';
 import { metadataStore } from '../services/metadata-store.js';
 import { SecurityError } from '../auth/security.js';
 
@@ -47,7 +46,6 @@ export async function handleDeleteAppApi(req, res) {
     }
 
     await metadataStore.removeApp(apiKey.scope, filename);
-    await keyStore.recordKeyUsage(apiKey.token, -1);
 
     return res.json({
       success: true,
